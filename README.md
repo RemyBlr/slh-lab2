@@ -1,0 +1,97 @@
+<!--
+vim: spelllang=fr
+-->
+# SLH 2025 - Lab #2
+
+- Laboratoire noté.
+- Veuillez rendre **votre code** et le **README.md** répondant aux questions du
+  chapitre `Question`.
+- La qualité du code est notée.
+- Le code doit obligatoirement être écrit en Rust.
+- La **validation des entrées** est primordiale.
+- Nous nous attendons à ce que vous testiez votre code.
+- Vous trouverez dans le code fourni les fichiers à remplir. La partie frontend
+  est déjà fournie dans son entièreté.
+- La crate `openssl` nécessite d'avoir `openssl-dev` d'installé.
+- **Ne pas modifier la version des dépendances de `cargo.toml`**. Vous pouvez
+  cependant ajouter des crates si nécessaire.
+
+## Description
+
+Le but de ce laboratoire est de gérer l'authentification d'un site web.
+L'authentification doit être gérée à travers le protocole OAuth2[^1] avec GitHub[^2]
+et la crate `rocket_oauth2`[^3].
+Les fonctionnalités du site sont les suivantes :
+
+- Connexion avec un nouveau compte.
+- Connexion à un compte existant.
+- Publier une image et une courte description.
+
+[^1]: <https://oauth.net/2/>
+[^2]: <https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app>
+[^3]: <https://lib.rs/crates/rocket_oauth2>
+
+## Rendu
+
+Le `README.md` contenant les réponses aux questions et le code source dans une archive `.crate`.
+
+Pour générer l'archive avec le code source, la commande :
+
+```sh
+cargo package
+```
+
+Génère l'archive dans le répertoire `target/package/`.
+
+## Questions
+
+> Répondez aux questions directement dans ce fichier là.
+
+1. Quel serait l'impact si on se fait voler notre secret client (et client id) ?
+
+2. Comment peut-on protéger notre secret client, afin d'éviter qu'il soit publier ou voler ?
+
+3. Quels est la différences entre OAuth2 et LDAP ?
+
+4. Est-ce que le mot de passe transite par votre serveur ? Est-ce qu'on peut le voler ?
+
+5. Si vous êtes mal intentionné et que vous administrez un serveur utilisant l'OAuth2 Github. Comment ferriez-vous pour obtenir plus d'accès au nom de vos utilisateur ? Et donnez des exemples.
+
+6. Pour les 2 captures d'écran d'écran de consentement de google, indiqué quels
+   scopes on probablement été demander par le site web.
+
+   - [image 1](scope-01.png) ![](scope-01.png) ![](../../../scope-01.png)
+   - [image 2](scope-01.png) ![](../../../scope-02.png) ![](scope-02.png)
+
+   Scopes possible (dans l'ordre alphabétique):
+   - `email`
+   - `https://example.com/all`
+   - `https://www.googleapis.com/auth/documents`
+   - `https://www.googleapis.com/auth/drive.file`
+   - `https://www.googleapis.com/auth/drive.photos.readonly`
+   - `https://www.googleapis.com/auth/drive.readonly`
+   - `https://www.googleapis.com/auth/drive`
+   - `https://www.googleapis.com/auth/gmail`
+   - `openid`
+   - `profile`
+
+## Tâches principales
+
+Pour lancer l'application vous devez être dans le même répertoire que `Cargo.toml` :
+
+```sh
+…$ ls -A
+Cargo.lock  Cargo.toml  data  image  README.md  Rocket.toml  scope-01.png  scope-02.png  src  target  templates  tests
+…$ cargo run
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `target/debug/lab02-2025`
+🔧 Configured for debug.
+   >> address: 127.0.0.1
+…
+```
+
+Compléter tout les `todo!()` du code, lors de `cargo test`, la liste des fichiers en contenant encore est affiché.
+
+## Fournisseur OAuth2
+
+Le fournisseur OAuth2 pour ce labo est Github; La création des token se passe sur la page : <https://github.com/settings/developers>.

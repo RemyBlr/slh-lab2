@@ -1,0 +1,26 @@
+{% extends "base" %}
+{% block title %}Home - {{ super() }}{% endblock title %}
+{% block style %}
+  {{ super() }}
+  .post-image {
+    width: 150px; /* Largeur fixe */
+    height: 150px; /* Hauteur fixe */
+    object-fit: cover; /* Découpe pour s’adapter */
+    cursor: pointer;
+  }
+  .full-image-modal img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+{% endblock %}
+{% block body %}
+
+<div class="container mt-3">
+    <a href="/create" class="btn btn-primary mb-3">Create a Post</a>
+    <a href="/home" class="btn btn-primary mb-3">View {{ len_posts }} posts</a>
+
+
+</div>
+
+
+{% endblock %}

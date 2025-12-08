@@ -1,0 +1,19 @@
+{% extends "base" %}
+{% block title %}Login - {{ super() }}{% endblock title %}
+{% block body %}
+
+<h3 class="text-center">Login</h3>
+<!--
+  <form id="login_form" class="mx-auto" style="max-width: 400px;">
+  <div class="mb-3">
+  <label for="email" class="form-label">Email</label>
+  <input type="email" class="form-control form-control-sm" id="email" name="email" required>
+  </div>
+  <button type="button" class="btn btn-primary btn-sm w-100" onclick="startLogin()">Login</button>
+  </form>
+-->
+<div class="mx-auto" style="max-width: 400px;">
+  <a class="btn btn-primary btn-sm w-100" href="/login/github">Login with GitHub</a>
+</div>
+
+{% endblock body %}

@@ -1,0 +1,12 @@
+[default]
+cli_colors = true
+port = 8000
+# Generate secret_key with `openssl rand -base64 64`
+secret_key = "todo!()"
+
+[default.oauth.github]
+provider = "GitHub"
+client_id = "todo!()"
+# DO NOT COMMIT OR PUBLISH THIS SECRET
+client_secret = "todo!()"
+redirect_uri = "http://localhost:8000/auth/github"
