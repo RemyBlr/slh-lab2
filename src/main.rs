@@ -27,9 +27,11 @@ fn github_login(oauth2: OAuth2<GitHub>, cookies: &CookieJar<'_>) -> Redirect {
     // pre-selected or restricted during application registration. We could
     // use `&[]` instead to not request any scopes, but usually scopes
     // should be requested during registation, in the redirect, or both.
+
+    // Oauth2 flow start here with GitHub redirection
     oauth2.get_redirect(
         cookies,
-        &["read:user"]
+        &["read:user"] // getting read access to user profile
     ).unwrap()
 }
 
@@ -90,6 +92,9 @@ async fn github_callback(
     //
     // (private cookie are encrypted using authenticated encryption and key setted in Rocket
     // config)
+
+    // private cookies are encrypted and authenticated by Rocket with the secret_key
+    // user can't read or access them
     cookies.add_private(
         Cookie::new("user_id", user_id.to_string())
     );
@@ -109,6 +114,8 @@ fn login() -> Template {
 }
 #[get("/logout")]
 fn logout(cookies: &CookieJar<'_>) -> Redirect {
+    // delete the private cookie
+    // invalidating the session on the server side
     cookies.remove_private(Cookie::from("user_id"));
     Redirect::to("/")
 }
@@ -123,6 +130,9 @@ fn reset_db(
     _users: &State<user::Db>,
     _posts: &State<database::post::Db>,
 ) -> Redirect {
+    // clears DB users and posts
+    // invalidating all sessions
+    // ok() is used to ignore errors
     _users.clear(&_user).ok();
     _posts.clear(&_user).ok();
     Redirect::to("/")
