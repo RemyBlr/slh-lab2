@@ -43,7 +43,7 @@ impl<'r> FromRequest<'r> for ConnectedUser {
         };
 
         cookies
-            .get_private(todo!())
+            .get_private("user_id")
             .and_then(|cookie| cookie.value().parse().ok())
             .and_then(|id| users.get(&id))
             .map(|user_db| ConnectedUser {

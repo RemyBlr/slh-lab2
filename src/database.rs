@@ -24,10 +24,12 @@ impl<T: Serialize> DbTable<T> {
     /// Fonctions de sauvegarde et chargement YAML
     pub fn save(&self) -> Result<()> {
         // Crée le dossier parent s'il n'existe pas
-        if let Some(parent_dir) = self.path.parent()
-            && !parent_dir.exists()
-        {
-            create_dir_all(parent_dir).wrap_err("Failed to create directory")?;
+        if let Some(parent_dir) = self.path.parent() {
+            // had to change this, had this error:
+            // error[E0658]: let expressions in this position are unstable
+            if !parent_dir.exists() {
+                create_dir_all(parent_dir).wrap_err("Failed to create directory")?;
+            }
         }
 
         let file = File::create(&self.path)?;
