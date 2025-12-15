@@ -47,6 +47,8 @@ Génère l'archive dans le répertoire `target/package/`.
 
 > Répondez aux questions directement dans ce fichier là.
 
+(Pour le bonus, j'ai mis des commentaires commencant par `// BONUS`  un peu partout dans `main.rs`).
+
 1. Quel serait l'impact si on se fait voler notre secret client (et client id) ?
 
 - Secret client : l'attaquant peut se faire passer pour notre app, il peut accéder aux

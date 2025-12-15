@@ -1,18 +1,22 @@
 #![doc = include_str!("../README.md")]
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use reqwest::{
     Url,
     header::{HeaderMap, HeaderValue},
 };
 use rocket::{FromForm, Request, State, catch, catchers, form::Form, fs::TempFile, get, http::{Cookie, CookieJar, SameSite}, main, post, response::Redirect, routes, serde::json::Json, uri};
+use rocket::fs::FileServer;
 use rocket_dyn_templates::{Template, context};
 use rocket_oauth2::{OAuth2, TokenResponse};
 use serde::Deserialize;
 
 pub use crate::auth::{ConnectedAdministrator, ConnectedUser};
 use crate::database::user;
+
+// BONUS : Images can't be larger than 5 MB
+const MAX_IMAGE_SIZE: u64 = 5 * 1024 * 1024; // 5 MB
 
 mod auth;
 mod database;
@@ -171,6 +175,44 @@ struct CreateForm<'r> {
     file: Option<TempFile<'r>>,
 }
 
+// BONUS : Function to check if image iis valid and saves it
+// async because of TempFile operations (copy_to)
+async fn check_and_save_image(
+    file: &mut TempFile<'_>,
+    post_id: u64,
+) -> Option<PathBuf> {
+    // Check for file size
+    let image_size = file.len();
+    if image_size > MAX_IMAGE_SIZE { return None }
+
+    // Check file type (Given by Rocket)
+    let image_type = file.content_type()?;
+    // Media type -> image
+    let top = image_type.top().as_str();
+    // Image extension
+    let sub_type = image_type.sub().as_str();
+    let is_image_valid = matches!(
+        (top, sub_type),
+        ("image", "png") |
+        ("image", "jpeg") |
+        ("image", "jpg") |
+        ("image", "gif")
+    );
+    if !is_image_valid { return None }
+
+    // Get or create image directory
+    let image_dir = Path::new("image");
+    std::fs::create_dir_all(image_dir).ok()?;
+
+    // Final path to save the image
+    let final_path = image_dir.join(format!("{post_id}.{sub_type}"));
+
+    // Save file
+    file.copy_to(&final_path).await.ok()?;
+
+    Some(final_path)
+}
+
 #[post("/post/create", data = "<data>")]
 async fn perform_create_port(
     user: ConnectedUser,
@@ -178,7 +220,8 @@ async fn perform_create_port(
     posts: &State<database::post::Db>,
 ) -> Option<Redirect> {
     let CreateForm { text, file } = data.into_inner();
-    let path = if let Some(mut f) = dbg!(file) {
+    // BONUS : using the new function to check and save image
+    /*let path = if let Some(mut f) = dbg!(file) {
         let path = Path::new("tmp");
         dbg!(path.is_file());
         f.copy_to(path).await.ok().unwrap();
@@ -186,10 +229,25 @@ async fn perform_create_port(
         Some(path)
     } else {
         None
+    };*/
+    let path: Option<PathBuf> = if let Some(mut f) = file {
+        // Get max key and add 1
+        let next_post_id = posts
+            .read()
+            .ok()
+            .and_then(|db| db.keys().max().copied())
+            .unwrap_or(0)
+            + 1;
+
+        check_and_save_image(&mut f, next_post_id).await
+    } else {
+        None
     };
-    dbg!(path);
+
+    // Take ref instead, otherwise dbg takes ownership
+    dbg!(&path);
     posts
-        .create_post(&user, text.to_string(), path)
+        .create_post(&user, text.to_string(), path.as_deref())
         .await
         .ok()?;
     Some(Redirect::to("/"))
@@ -241,6 +299,8 @@ async fn main() -> Result<(), eyre::Error> {
                 reset_db
             ],
         )
+        // BONUS : Serves images uploaded by users
+        .mount("/image", FileServer::from("image"))
         .register("/", catchers![not_authorized, not_found])
         .attach(Template::fairing())
         .attach(OAuth2::<GitHub>::fairing("github"))
