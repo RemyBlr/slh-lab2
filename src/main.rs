@@ -97,8 +97,7 @@ async fn github_callback(
     // (private cookie are encrypted using authenticated encryption and key setted in Rocket
     // config)
 
-    // private cookies are encrypted and authenticated by Rocket with the secret_key
-    // user can't read or access them
+    // user can't read or access them  private cookies
     cookies.add_private(
         Cookie::new("user_id", user_id.to_string())
     );
